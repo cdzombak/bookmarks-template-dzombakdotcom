@@ -15,8 +15,20 @@ role="status" region; the results region itself is not a live region.
 "bookmark-item" is defined in list.html.tmpl (all three templates are parsed
 into one set), so list pages and search results share one card markup.
 See TEMPLATES.md.
+
+Order matters: .TooShort is checked before .Queried, because a too-short query
+has .Queried false but is not the initial prompt state.
 */ -}}
-{{- if not .Queried}}
+{{- if .TooShort}}
+{{- /*
+    The user typed something; it was just too short to search on. Telling them
+    to start typing would be wrong, and the search box still holds the query.
+*/}}
+                <div class="cdz-search-tooshort">
+                    <p class="cdz-search-prompt">Enter at least 2 characters to search.</p>
+                    <div hidden data-search-status>{{.StatusText}}</div>
+                </div>
+{{- else if not .Queried}}
                 <div class="cdz-search-empty" data-search-empty>
                     <p class="cdz-search-prompt">Start typing to search…</p>
                     <div hidden data-search-status>{{.StatusText}}</div>
