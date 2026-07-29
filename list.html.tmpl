@@ -71,6 +71,14 @@ See TEMPLATES.md.
                     <li><a class="cdz-bm-page-ctl" href="{{.PrevURL}}" rel="prev"><span class="cdz-bm-page-arrow" aria-hidden="true">&laquo;</span> Previous page</a></li>
 {{- end}}
 {{- range .Pages}}
+{{- /*
+                    .Pages omits pages far from the current one, so mark the
+                    elisions. aria-hidden because the page numbers themselves
+                    already tell a screen reader user what is on offer.
+                */}}
+{{- if .GapBefore}}
+                    <li class="cdz-bm-page-gap" aria-hidden="true">&hellip;</li>
+{{- end}}
 {{- if .Current}}
                     <li><a class="cdz-bm-page-num" href="{{.URL}}" aria-current="page"><span class="cdz-visually-hidden">Page </span>{{.Num}}</a></li>
 {{- else}}
@@ -571,6 +579,14 @@ See TEMPLATES.md.
     .cdz-bm-pagination a:hover {
       text-decoration: underline;
       border-color: var(--color-mid-gray);
+    }
+
+    .cdz-bm-page-gap {
+      display: inline-flex;
+      align-items: center;
+      min-height: 4.4rem;
+      font-size: 1.5rem;
+      color: var(--color-secondary-text);
     }
 
     .cdz-bm-pagination a[aria-current="page"] {
