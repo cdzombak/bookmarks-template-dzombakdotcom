@@ -146,8 +146,14 @@ See TEMPLATES.md.
                         <li class="nav-etc"><a href="https://www.dzombak.com/etc/">/etc</a></li>
                         <li class="nav-photos"><a href="https://pictures.dzombak.com/">Photos</a></li>
                         <li class="nav-github"><a href="https://github.com/cdzombak">GitHub</a></li>
+{{- /*
+    aria-current="true", not "page": this link points at /1, which is only the
+    current page when you are on page 1. "true" marks the current section,
+    leaving "page" to the pagination control, which knows which page you are
+    actually on.
+*/}}
 {{- if eq . "bookmarks"}}
-                        <li class="nav-bookmarks nav-current"><a href="/1" aria-current="page">Bookmarks</a></li>
+                        <li class="nav-bookmarks nav-current"><a href="/1" aria-current="true">Bookmarks</a></li>
                         <li class="nav-search"><a href="/search">Search</a></li>
 {{- else}}
                         <li class="nav-bookmarks"><a href="/1">Bookmarks</a></li>
