@@ -29,7 +29,9 @@ all three templates are parsed into one set. See TEMPLATES.md.
     <script defer src="https://ua.cdzombak.net/script.js" data-website-id="690e1dab-c263-4e31-914b-31387fbc46fb"></script>
 </head>
 
-<body class="has-serif-title is-head-left-logo">
+{{- /* is-dropdown-loaded is normally added by Ghost's JS; without it screen.css
+       keeps every header nav item at opacity 0. */}}
+<body class="has-serif-title is-head-left-logo is-dropdown-loaded">
 <a class="cdz-skip-link" href="#gh-main">Skip to content</a>
 <div class="gh-site">
 

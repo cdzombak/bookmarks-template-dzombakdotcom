@@ -34,7 +34,9 @@ See TEMPLATES.md.
     <script defer src="https://ua.cdzombak.net/script.js" data-website-id="690e1dab-c263-4e31-914b-31387fbc46fb"></script>
 </head>
 
-<body class="has-serif-title is-head-left-logo">
+{{- /* is-dropdown-loaded is normally added by Ghost's JS; without it screen.css
+       keeps every header nav item at opacity 0. */}}
+<body class="has-serif-title is-head-left-logo is-dropdown-loaded">
 <a class="cdz-skip-link" href="#gh-main">Skip to content</a>
 <div class="gh-site">
 
@@ -152,6 +154,21 @@ See TEMPLATES.md.
 */}}
                 <a class="gh-search gh-icon-btn cdz-head-search" href="/search" title="Search" aria-label="Search bookmarks">{{template "icon-search"}}</a>
             </div>
+
+{{- /*
+    nav-current is how dzombak.com marks — and underlines — the nav entry for
+    the section you are in, which on every page this template renders is this
+    one. aria-current="true", not "page": the link goes to the site root, so
+    it names the current section, leaving "page" to the pagination control,
+    which knows which page you are actually on.
+*/}}
+            <nav class="gh-head-menu" aria-label="Main">
+                <div class="cdz-nav-container">
+                    <ul class="nav">
+                        <li class="nav-bookmarks nav-current"><a href="https://bookmarks.dzombak.com" aria-current="true">Bookmarks</a></li>
+                    </ul>
+                </div>
+            </nav>
 
             <div class="gh-head-actions">
                 <a class="gh-search gh-icon-btn cdz-head-search" href="/search" title="Search" aria-label="Search bookmarks">{{template "icon-search"}}</a>
@@ -292,15 +309,40 @@ See TEMPLATES.md.
     /* --- header --- */
 
     /*
-      screen.css lays the header out in three columns — brand, menu, actions —
-      and this template has no menu. Dropping to two columns is not just
-      tidiness: the empty third track still contributes a --head-nav-gap
-      column gap to its right, which held the search icon 4rem short of the
-      right edge. The mobile override in screen.css is #-prefixed and so
-      still wins below 768px.
+      screen.css hides the header menu below 768px and expects Ghost's burger
+      button and its JS to reveal it. This app ships no Ghost JS, so the one
+      nav link stays in flow on a row of its own, at the size it has on
+      desktop rather than the burger menu's 2.6rem.
     */
-    .is-head-left-logo .gh-head-inner {
-      grid-template-columns: auto 1fr;
+    @media (max-width: 767px) {
+      #gh-head {
+        height: auto;
+      }
+
+      #gh-head .gh-head-inner {
+        gap: 1.2rem;
+        grid-template-rows: auto auto;
+        height: auto;
+        padding-bottom: 1.2rem;
+      }
+
+      #gh-head .gh-head-menu {
+        position: static;
+        justify-content: flex-start;
+        visibility: visible;
+        opacity: 1;
+      }
+
+      #gh-head .nav li {
+        opacity: 1;
+        transform: none;
+      }
+
+      #gh-head .nav a {
+        font-size: 1.4rem;
+        font-weight: 500;
+        text-transform: uppercase;
+      }
     }
 
     /*
