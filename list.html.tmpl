@@ -7,7 +7,7 @@ definitions are visible from the other two:
 
   "app-css"        — the <style> block (no data)
   "site-header"    — the dzombak.com header (no data)
-  "icon-search"    — the header's search glyph, used twice by "site-header"
+  "icon-search"    — the header's search glyph, used by "site-header"
   "site-footer"    — the dzombak.com footer; data is the site's BaseURL string
   "bookmark-item"  — one <li> for a render.Bookmark; used by both the list page
                      and results.html.tmpl so the two cannot drift
@@ -145,14 +145,6 @@ See TEMPLATES.md.
                     </a>
                     <div class="cdz-head-logo-subtitle">&hellip; has too many hobbies.</div>
                 </div>
-{{- /*
-    Two copies of the search control, exactly as dzombak.com's header has them:
-    screen.css shows the one inside .gh-head-brand below 768px and the one in
-    .gh-head-actions at 768px and up, so each sits where the site's does. Unlike
-    the site's, these are links to /search rather than buttons opening Ghost's
-    search modal.
-*/}}
-                <a class="gh-search gh-icon-btn cdz-head-search" href="/search" title="Search" aria-label="Search bookmarks">{{template "icon-search"}}</a>
             </div>
 
 {{- /*
@@ -170,6 +162,14 @@ See TEMPLATES.md.
                 </div>
             </nav>
 
+{{- /*
+    dzombak.com's header carries two copies of the search control — one inside
+    .gh-head-brand for below 768px, one here for 768px and up — because
+    screen.css moves it between the two. This header keeps its nav on the brand
+    row at every width (see the mobile rules in "app-css"), so the single copy
+    here serves both, and unlike the site's it is a link to /search rather than
+    a button opening Ghost's search modal.
+*/}}
             <div class="gh-head-actions">
                 <a class="gh-search gh-icon-btn cdz-head-search" href="/search" title="Search" aria-label="Search bookmarks">{{template "icon-search"}}</a>
             </div>
@@ -310,9 +310,14 @@ See TEMPLATES.md.
 
     /*
       screen.css hides the header menu below 768px and expects Ghost's burger
-      button and its JS to reveal it. This app ships no Ghost JS, so the one
-      nav link stays in flow on a row of its own, at the size it has on
-      desktop rather than the burger menu's 2.6rem.
+      button and its JS to reveal it, and it hides .gh-head-actions (the search
+      control) in favour of the copy the site nests in .gh-head-brand. This app
+      ships no Ghost JS and only one nav link, so instead of a burger — or a
+      second header row for that one link — the desktop three-column
+      arrangement is kept all the way down: brand, then the nav, then search.
+
+      Every child is placed explicitly rather than left to auto-flow, since
+      screen.css's own mobile rules position them for the burger layout.
     */
     @media (max-width: 767px) {
       #gh-head {
@@ -320,17 +325,50 @@ See TEMPLATES.md.
       }
 
       #gh-head .gh-head-inner {
-        gap: 1.2rem;
-        grid-template-rows: auto auto;
+        grid-template-columns: auto 1fr auto;
+        grid-template-rows: auto;
+        column-gap: 1.6rem;
+        row-gap: 0;
+        align-items: center;
         height: auto;
         padding-bottom: 1.2rem;
       }
 
+      /*
+        min-width: 0 lets the brand's `auto` track shrink past its max-content
+        width, so on a narrow viewport the logo subtitle wraps instead of
+        pushing the nav and the search control out of the row.
+      */
+      #gh-head .gh-head-brand {
+        grid-row: 1;
+        grid-column: 1;
+        width: auto;
+        min-width: 0;
+      }
+
       #gh-head .gh-head-menu {
+        grid-row: 1;
+        grid-column: 2;
         position: static;
         justify-content: flex-start;
+        min-width: 0;
         visibility: visible;
         opacity: 1;
+      }
+
+      #gh-head .gh-head-actions {
+        grid-row: 1;
+        grid-column: 3;
+        display: flex;
+        position: static;
+        align-items: center;
+        justify-content: flex-end;
+        visibility: visible;
+        opacity: 1;
+      }
+
+      #gh-head .gh-head-actions .cdz-head-search {
+        display: flex;
       }
 
       #gh-head .nav li {
@@ -338,10 +376,12 @@ See TEMPLATES.md.
         transform: none;
       }
 
+      /* The size the nav link has on desktop, not the burger menu's 2.6rem. */
       #gh-head .nav a {
         font-size: 1.4rem;
         font-weight: 500;
         text-transform: uppercase;
+        white-space: nowrap;
       }
     }
 
