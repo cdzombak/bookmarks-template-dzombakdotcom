@@ -6,8 +6,8 @@ results.html.tmpl. All three files are parsed into one template set, so these
 definitions are visible from the other two:
 
   "app-css"        — the <style> block (no data)
-  "site-header"    — the dzombak.com header; data is a string naming the
-                     current section: "bookmarks" or "search"
+  "site-header"    — the dzombak.com header (no data)
+  "icon-search"    — the header's search glyph, used twice by "site-header"
   "site-footer"    — the dzombak.com footer; data is the site's BaseURL string
   "bookmark-item"  — one <li> for a render.Bookmark; used by both the list page
                      and results.html.tmpl so the two cannot drift
@@ -34,13 +34,11 @@ See TEMPLATES.md.
     <script defer src="https://ua.cdzombak.net/script.js" data-website-id="690e1dab-c263-4e31-914b-31387fbc46fb"></script>
 </head>
 
-{{- /* is-dropdown-loaded is normally added by Ghost's JS; without it screen.css
-       keeps every header nav item at opacity 0. */}}
-<body class="has-serif-title is-head-left-logo is-dropdown-loaded">
+<body class="has-serif-title is-head-left-logo">
 <a class="cdz-skip-link" href="#gh-main">Skip to content</a>
 <div class="gh-site">
 
-    {{template "site-header" "bookmarks"}}
+    {{template "site-header"}}
 
     <main id="gh-main" class="gh-main gh-outer" tabindex="-1">
         <div class="gh-inner">
@@ -67,8 +65,14 @@ See TEMPLATES.md.
 {{- if gt .TotalPages 1}}
             <nav class="cdz-bm-pagination" aria-label="Pagination">
                 <ul class="cdz-bm-pagination-list">
+{{- /*
+                    The arrow and the label share one span so they sit in a
+                    single line box: as separate children of the flex anchor
+                    their differing font sizes would not line up, and the
+                    space between them would be dropped.
+                */}}
 {{- if .PrevURL}}
-                    <li><a class="cdz-bm-page-ctl" href="{{.PrevURL}}" rel="prev"><span class="cdz-bm-page-arrow" aria-hidden="true">&laquo;</span> Previous page</a></li>
+                    <li class="cdz-bm-page-ctl-item"><a class="cdz-bm-page-ctl" href="{{.PrevURL}}" rel="prev"><span class="cdz-bm-page-ctl-label"><span class="cdz-bm-page-arrow" aria-hidden="true">&laquo;</span> Previous page</span></a></li>
 {{- end}}
 {{- range .Pages}}
 {{- /*
@@ -86,7 +90,7 @@ See TEMPLATES.md.
 {{- end}}
 {{- end}}
 {{- if .NextURL}}
-                    <li><a class="cdz-bm-page-ctl" href="{{.NextURL}}" rel="next">Next page <span class="cdz-bm-page-arrow" aria-hidden="true">&raquo;</span></a></li>
+                    <li class="cdz-bm-page-ctl-item"><a class="cdz-bm-page-ctl" href="{{.NextURL}}" rel="next"><span class="cdz-bm-page-ctl-label">Next page <span class="cdz-bm-page-arrow" aria-hidden="true">&raquo;</span></span></a></li>
 {{- end}}
                 </ul>
                 <p class="cdz-bm-pagination-summary">Page {{.Page}} of {{.TotalPages}}</p>
@@ -144,35 +148,26 @@ See TEMPLATES.md.
                     </a>
                     <div class="cdz-head-logo-subtitle">&hellip; has too many hobbies.</div>
                 </div>
+{{- /*
+    Two copies of the search control, exactly as dzombak.com's header has them:
+    screen.css shows the one inside .gh-head-brand below 768px and the one in
+    .gh-head-actions at 768px and up, so each sits where the site's does. Unlike
+    the site's, these are links to /search rather than buttons opening Ghost's
+    search modal.
+*/}}
+                <a class="gh-search gh-icon-btn cdz-head-search" href="/search" title="Search" aria-label="Search bookmarks">{{template "icon-search"}}</a>
             </div>
 
-            <nav class="gh-head-menu" aria-label="Main">
-                <div class="cdz-nav-container">
-                    <ul class="nav">
-                        <li class="nav-blog"><a href="https://www.dzombak.com/blog/">Blog</a></li>
-                        <li class="nav-contact"><a href="https://www.dzombak.com/contact/">Contact</a></li>
-                        <li class="nav-etc"><a href="https://www.dzombak.com/etc/">/etc</a></li>
-                        <li class="nav-photos"><a href="https://pictures.dzombak.com/">Photos</a></li>
-                        <li class="nav-github"><a href="https://github.com/cdzombak">GitHub</a></li>
-{{- /*
-    aria-current="true", not "page": this link points at /1, which is only the
-    current page when you are on page 1. "true" marks the current section,
-    leaving "page" to the pagination control, which knows which page you are
-    actually on.
-*/}}
-{{- if eq . "bookmarks"}}
-                        <li class="nav-bookmarks nav-current"><a href="/1" aria-current="true">Bookmarks</a></li>
-                        <li class="nav-search"><a href="/search">Search</a></li>
-{{- else}}
-                        <li class="nav-bookmarks"><a href="/1">Bookmarks</a></li>
-                        <li class="nav-search nav-current"><a href="/search" aria-current="page">Search</a></li>
-{{- end}}
-                    </ul>
-                </div>
-            </nav>
+            <div class="gh-head-actions">
+                <a class="gh-search gh-icon-btn cdz-head-search" href="/search" title="Search" aria-label="Search bookmarks">{{template "icon-search"}}</a>
+            </div>
         </div>
     </header>
 {{- end}}
+
+
+{{- /* The magnifying glass from dzombak.com's partials/icons/search.hbs. */}}
+{{- define "icon-search"}}<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>{{- end}}
 
 
 {{- define "site-footer"}}
@@ -181,7 +176,7 @@ See TEMPLATES.md.
             <div class="gh-copyright">
                 {{- /* role/aria-label so screen readers get one short phrase
                        instead of ten emoji names; see TEMPLATES.md. */}}
-                <div class="cdz-stuff-i-like-emoji" title="some stuff I like" role="img" aria-label="some stuff I like">&#128187;&#65039; &#128757;&#127995;&#8205;&#9792;&#65039; &#127957;&#65039; &#128038; &#128248; &#129706; &#9749; &#127785;&#65039; &#128251; &#128758;</div>
+                <div class="cdz-stuff-i-like-emoji" title="some stuff I like" role="img" aria-label="some stuff I like">💻️ 🚵🏻‍♀️ 🏕️ 🐦 📸 🥾 ☕ 🌩️ 📻 🛶</div>
                 <div class="cdz-copyright">
                     &copy; 2026 <a href="https://www.dzombak.com/contact/">Chris Dzombak</a>
                     {{- /* dzombak.com nests a <p> inside a <span> here; a <div>
@@ -189,17 +184,29 @@ See TEMPLATES.md.
                     <div class="cdz-terms-notice">All rights reserved unless otherwise noted.</div>
                 </div>
             </div>
+            {{- /* The site's own "Site Navigation" and "Elsewhere" columns,
+                   same entries in the same order. dzombak.com writes the
+                   first column's links site-relative; here they have to be
+                   absolute, and its "Bookmarks" entry is this site. */}}
             <div class="cdz-foot-nav-container">
-                <nav class="cdz-foot-nav" aria-label="Footer">
+                <nav class="cdz-foot-nav" aria-label="Site navigation">
                     <h2 class="gh-section-title">Site Navigation</h2>
                     <ul class="nav">
-                        <li><a href="{{.}}/1">Bookmarks</a></li>
-                        <li><a href="{{.}}/search">Search bookmarks</a></li>
-                        <li><a href="https://www.dzombak.com/feeds/bookmarks.rss.xml">Bookmarks RSS</a></li>
                         <li><a href="https://www.dzombak.com/blog/">Blog</a></li>
                         <li><a href="https://www.dzombak.com/contact/">Contact</a></li>
                         <li><a href="https://www.dzombak.com/etc/">/etc</a></li>
                         <li><a href="https://pictures.dzombak.com/">Photos</a></li>
+                        <li><a href="https://www.dzombak.com/feeds/">Feeds</a></li>
+                        <li><a href="{{.}}/1">Bookmarks</a></li>
+                    </ul>
+                </nav>
+                <nav class="cdz-foot-nav" aria-label="Elsewhere">
+                    <h2 class="gh-section-title">Elsewhere</h2>
+                    <ul class="nav">
+                        <li><a rel="me" href="https://www.linkedin.com/in/chris-dzombak">LinkedIn</a></li>
+                        <li><a rel="me" href="https://www.github.com/cdzombak">GitHub</a></li>
+                        <li><a rel="me" href="https://a2mi.social/@dzombak">Mastodon</a></li>
+                        <li><a rel="me" href="https://bookwyrm.social/user/dzombak/">BookWyrm</a></li>
                     </ul>
                 </nav>
             </div>
@@ -224,6 +231,19 @@ See TEMPLATES.md.
          --ghost-accent-color                accent          (#425269 / #809fcc)
          --font-sans, --font-serif
        ------------------------------------------------------------------ */
+
+    /*
+      screen.css only sets --ghost-accent-color for dark mode; the light-mode
+      value comes from the inline :root rule Ghost writes into the site's
+      ghost_head, which this app has no equivalent of. Without it every
+      light-mode use of the accent falls back to an invalid var() — most
+      visibly the current page number, which is drawn in --background-color
+      and so vanishes into an unpainted background. This is dzombak.com's own
+      accent value; the dark-mode rule is !important and still wins.
+    */
+    :root {
+      --ghost-accent-color: #425269;
+    }
 
     /* --- utilities --- */
 
@@ -274,79 +294,27 @@ See TEMPLATES.md.
       outline-offset: -4px;
     }
 
-    /* --- header: make the nav usable without Ghost's JS --- */
-
-    .gh-head-inner {
-      --head-nav-gap: 3rem;
-    }
-
-    @media (max-width: 1100px) {
-      .gh-head-inner {
-        --head-nav-gap: 2rem;
-      }
-    }
-
-    .gh-head-menu .nav > li {
-      opacity: 1;
-    }
+    /* --- header --- */
 
     /*
-      screen.css hides the header menu below 767px and expects Ghost's burger
-      button + JS to reveal it. This app ships no Ghost JS, so the menu is
-      shown inline and allowed to wrap instead.
+      The site's search control is a <button> that opens Ghost's search modal;
+      here it is a link to /search, so screen.css's anchor rules have to be
+      undone: `a` gives itself --color-darker-gray, and `a:hover` forces
+      `opacity: 1 !important` over .gh-search:hover's 0.9, plus an underline.
     */
-    @media (max-width: 767px) {
-      #gh-head {
-        height: auto;
-      }
-
-      #gh-head .gh-head-inner {
-        gap: 1.2rem;
-        grid-template-columns: 1fr;
-        grid-template-rows: auto auto;
-        height: auto;
-        padding-bottom: 1.2rem;
-      }
-
-      #gh-head .gh-head-brand {
-        display: block;
-        height: auto;
-      }
-
-      #gh-head .gh-head-menu {
-        position: static;
-        justify-content: flex-start;
-        margin: 0;
-        visibility: visible;
-        opacity: 1;
-      }
-
-      #gh-head .cdz-nav-container {
-        width: 100%;
-      }
-
-      #gh-head .nav {
-        flex-wrap: wrap;
-        gap: 0.8rem 2rem;
-        white-space: normal;
-      }
-
-      #gh-head .nav li {
-        opacity: 1;
-        transform: none;
-      }
-
-      #gh-head .nav a {
-        font-size: 1.4rem;
-        font-weight: 500;
-        text-transform: uppercase;
-      }
+    .cdz-head-search {
+      color: inherit;
     }
 
-    /* --- footer: one nav column instead of the site's four --- */
+    .cdz-head-search:hover {
+      opacity: 0.9 !important;
+      text-decoration: none;
+    }
+
+    /* --- footer: two nav columns instead of the site's four --- */
 
     .gh-foot-inner .cdz-foot-nav-container {
-      grid-template-columns: 1fr;
+      grid-template-columns: 1fr 1fr;
       grid-template-rows: auto;
     }
 
@@ -555,6 +523,7 @@ See TEMPLATES.md.
       display: flex;
       flex-wrap: wrap;
       align-items: center;
+      justify-content: center;
       gap: 0.8rem;
       padding: 0;
       margin: 0;
@@ -596,6 +565,19 @@ See TEMPLATES.md.
       border-color: var(--ghost-accent-color);
     }
 
+    /*
+      One flex item holding both the arrow and the label, so the two share a
+      line box and the arrow sits on the label's baseline. As sibling flex
+      items they are centred as boxes instead, which the arrow's larger font
+      size throws off, and the space between them is dropped as leading
+      white space.
+    */
+    .cdz-bm-page-ctl-label {
+      white-space: nowrap;
+    }
+
+    /* line-height keeps the bigger glyph from stretching the line box; inline
+       layout puts it on the baseline regardless. */
     .cdz-bm-page-arrow {
       font-size: 1.3em;
       line-height: 1;
@@ -605,6 +587,7 @@ See TEMPLATES.md.
       margin-top: 1.2rem;
       font-size: 1.3rem;
       color: var(--color-secondary-text);
+      text-align: center;
     }
 
     /* --- search --- */
@@ -707,6 +690,20 @@ See TEMPLATES.md.
     @media (max-width: 767px) {
       .cdz-bm-pagehead {
         margin-bottom: 3.2rem;
+      }
+
+      /*
+        Previous/Next are several times wider than a page number, so letting
+        the whole control wrap freely interleaves them with the numbers and
+        leaves ragged, hard-to-scan rows. Each takes a row of its own instead,
+        with the page numbers centred between them.
+      */
+      .cdz-bm-pagination-list > .cdz-bm-page-ctl-item {
+        flex: 1 1 100%;
+      }
+
+      .cdz-bm-pagination .cdz-bm-page-ctl {
+        width: 100%;
       }
 
       .cdz-search-row {

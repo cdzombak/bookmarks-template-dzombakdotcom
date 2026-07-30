@@ -29,20 +29,18 @@ all three templates are parsed into one set. See TEMPLATES.md.
     <script defer src="https://ua.cdzombak.net/script.js" data-website-id="690e1dab-c263-4e31-914b-31387fbc46fb"></script>
 </head>
 
-<body class="has-serif-title is-head-left-logo is-dropdown-loaded">
+<body class="has-serif-title is-head-left-logo">
 <a class="cdz-skip-link" href="#gh-main">Skip to content</a>
 <div class="gh-site">
 
-    {{template "site-header" "search"}}
+    {{template "site-header"}}
 
     <main id="gh-main" class="gh-main gh-outer" tabindex="-1">
         <div class="gh-inner">
             <header class="cdz-bm-pagehead">
                 <h1 class="gh-article-title cdz-bm-pagehead-title">Search bookmarks</h1>
                 <p class="cdz-bm-pagehead-desc">
-                    Bookmark titles and site names are searched. Every word has to match
-                    from the start of a word, in any order.
-                    <a href="{{.BaseURL}}/1">Browse all bookmarks</a> instead.
+                    Bookmark titles and site names are searched.
                 </p>
             </header>
 
@@ -57,7 +55,7 @@ all three templates are parsed into one set. See TEMPLATES.md.
                 <div class="cdz-search-row">
                     <input class="cdz-search-input" type="search" id="search-input" name="q"
                            value="{{.Results.Query}}"
-                           placeholder="e.g. sqlite servers"
+                           placeholder="e.g. rust"
                            autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false">
                     <button class="cdz-search-submit" type="submit">Search</button>
                 </div>
