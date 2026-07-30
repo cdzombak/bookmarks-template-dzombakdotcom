@@ -292,6 +292,18 @@ See TEMPLATES.md.
     /* --- header --- */
 
     /*
+      screen.css lays the header out in three columns — brand, menu, actions —
+      and this template has no menu. Dropping to two columns is not just
+      tidiness: the empty third track still contributes a --head-nav-gap
+      column gap to its right, which held the search icon 4rem short of the
+      right edge. The mobile override in screen.css is #-prefixed and so
+      still wins below 768px.
+    */
+    .is-head-left-logo .gh-head-inner {
+      grid-template-columns: auto 1fr;
+    }
+
+    /*
       The site's search control is a <button> that opens Ghost's search modal;
       here it is a link to /search, so screen.css's anchor rules have to be
       undone: `a` gives itself --color-darker-gray, and `a:hover` forces
