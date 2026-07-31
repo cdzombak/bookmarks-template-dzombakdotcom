@@ -309,12 +309,32 @@ See TEMPLATES.md.
     /* --- header --- */
 
     /*
+      dzombak.com's header, with the logo on the left, runs its nav up against
+      the logo. This one has a single entry, so it is pushed over to sit beside
+      the search control instead. The rule is repeated at three levels because
+      screen.css's flex container for the nav differs by breakpoint.
+    */
+    #gh-head .gh-head-menu {
+      justify-content: flex-end;
+    }
+
+    #gh-head .gh-head-menu .cdz-nav-container {
+      margin-left: auto;
+    }
+
+    #gh-head .gh-head-menu .nav {
+      justify-content: flex-end;
+    }
+
+    /*
       screen.css hides the header menu below 768px and expects Ghost's burger
       button and its JS to reveal it, and it hides .gh-head-actions (the search
       control) in favour of the copy the site nests in .gh-head-brand. This app
       ships no Ghost JS and only one nav link, so instead of a burger — or a
       second header row for that one link — the desktop three-column
       arrangement is kept all the way down: brand, then the nav, then search.
+      The nav's own column is elastic, so the flex-end rule above is what puts
+      the link beside the search control rather than beside the logo.
 
       Every child is placed explicitly rather than left to auto-flow, since
       screen.css's own mobile rules position them for the burger layout.
@@ -350,7 +370,6 @@ See TEMPLATES.md.
         grid-row: 1;
         grid-column: 2;
         position: static;
-        justify-content: flex-start;
         min-width: 0;
         visibility: visible;
         opacity: 1;
